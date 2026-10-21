@@ -1,0 +1,13 @@
+# Changelog
+
+## 2.1.0 - 2026-10-21
+
+- Black hole rework: size slider, Clean event-horizon style, ray-traced lensed disk (default), organic smoke/plasma jets, jets mode (When feeding / Always / Off).
+- Presets now also save toggles, link style, black hole style, link types and quality.
+- Version shown in the Legend heading.
+- Own-window mode: command "Open Live Galaxy in its own window", chrome-free popout with drag bar.
+- Earlier in 2.x: visible spiral arms, science-based planets and belts, more link styles, grouped control panel, Shift-click zoom, twinkle randomisation.
+
+## 2.0.0
+
+- Initial Live Galaxy plugin tracked here.

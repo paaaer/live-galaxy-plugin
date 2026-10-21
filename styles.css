@@ -1,0 +1,67 @@
+.live-graph-view { padding: 0 !important; overflow: hidden; position: relative; background: #02020a; }
+.live-graph-wrap { position: absolute; inset: 0; }
+.live-graph-wrap canvas { width: 100%; height: 100%; display: block; cursor: grab; }
+.live-graph-wrap canvas.lg-pointer { cursor: pointer; }
+.lg-panel {
+  position: absolute; top: 10px; left: 10px;   z-index: 2; width: 320px; max-width: calc(100% - 20px);
+    max-height: calc(100% - 70px); overflow-y: auto; overflow-x: hidden; box-sizing: border-box;
+    background: rgba(10, 8, 26, 0.72); border: 1px solid rgba(160, 150, 255, 0.25);
+  border-radius: 8px; padding: 6px 10px; color: #cfd6ff; backdrop-filter: blur(4px);
+  font-size: var(--font-ui-smaller);
+}
+.lg-panel summary { cursor: pointer; font-weight: 600; margin-bottom: 4px; }
+.lg-row { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 6px; margin: 4px 0; }
+.lg-row > span { width: 84px; flex: none; }
+.lg-panel::-webkit-scrollbar { width: 6px; }
+.lg-panel::-webkit-scrollbar-thumb { background: rgba(160,150,255,0.35); border-radius: 3px; }
+.lg-row input[type="range"] { flex: 1; min-width: 0; }
+.lg-row input[type="text"] { flex: 1; min-width: 0; }
+.lg-row select { flex: 1; min-width: 0; }
+.lg-row label { display: flex; align-items: center; gap: 3px; margin-right: 6px; }
+.lg-row button { padding: 2px 8px; height: auto; font-size: var(--font-ui-smaller); }
+.live-graph-stats {
+  position: absolute; right: 12px; bottom: 8px; z-index: 2;
+  font-size: var(--font-ui-smaller); color: #6f78a8; pointer-events: none;
+}
+.live-graph-wrap .lg-home {
+  position: absolute; left: 12px; bottom: 12px; z-index: 3;
+  background: rgba(20, 24, 50, 0.75); color: #cfd6ff; border: 1px solid #3a4280;
+}
+.live-graph-wrap .lg-hint {
+  position: absolute; left: 12px; bottom: 52px; z-index: 2; pointer-events: none;
+  font-size: var(--font-ui-smaller); color: #8f98d0; transition: opacity 1.5s;
+}
+.live-graph-wrap .lg-hint-hide { opacity: 0; }
+.lg-search { position: absolute; top: 10px; right: 12px; z-index: 3; width: 240px; }
+.lg-search input { width: 100%; background: rgba(10, 8, 26, 0.8); color: #e8ecff; border: 1px solid rgba(160, 150, 255, 0.35); }
+.lg-search-list { background: rgba(10, 8, 26, 0.92); border-radius: 6px; margin-top: 2px; }
+.lg-search-item { padding: 4px 8px; cursor: pointer; color: #cfd6ff; font-size: var(--font-ui-smaller); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lg-search-item:hover { background: rgba(125, 255, 176, 0.15); }
+.lg-search-path { color: #6f78a8; }
+.lg-sec { border-top: 1px solid rgba(160, 150, 255, 0.15); padding: 3px 0; }
+.lg-sec > summary { font-weight: 500; color: #e8ecff; text-transform: uppercase; letter-spacing: 0.05em; font-size: 10px; margin: 2px 0; }
+.lg-sec-body { padding: 2px 0 4px 2px; }
+.lg-leg-h { margin: 6px 0 2px; font-weight: 600; color: #e8ecff; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+.lg-leg-item { display: flex; align-items: flex-start; gap: 7px; margin: 2px 0; color: #9aa4d8; line-height: 1.3; }
+.lg-leg-item .lg-swatch { flex: none; width: 12px; height: 8px; margin-top: 4px; border-radius: 4px; box-sizing: border-box; }
+.lg-kinds { flex-wrap: wrap; }
+.lg-kinds > span:first-child { width: 84px; }
+.lg-kinds label { margin-right: 4px; font-size: var(--font-ui-smaller); }
+.lg-swatch { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+.lg-row > .lg-tl-label { width: auto; flex: none; font-size: var(--font-ui-smaller); color: #8f98d0; min-width: 78px; }
+.lg-legend summary { font-weight: 400; }
+.live-graph-wrap canvas:focus { outline: none; }
+
+/* popout window showing only the galaxy */
+body.lg-solo-window .workspace-tab-header-container,
+body.lg-solo-window .view-header,
+body.lg-solo-window .titlebar-button-container { display: none !important; }
+body.lg-solo-window .workspace-leaf-content[data-type="live-graph"] .view-content { padding: 0; }
+
+
+.lg-dragbar { position: absolute; top: 0; left: 0; right: 0; height: 24px; z-index: 50; display: flex; justify-content: space-between; align-items: center; padding: 0 8px; font-size: 11px; color: #cfd6ff; background: linear-gradient(#0b0a1acc, #0b0a1a00); opacity: 0; transition: opacity .2s; -webkit-app-region: drag; }
+.lg-dragbar:hover { opacity: 1; }
+.lg-dragbar button { -webkit-app-region: no-drag; background: none; border: 0; box-shadow: none; color: inherit; cursor: pointer; padding: 0 6px; }
+.lg-dragbar button:hover { color: #fff; }
+body:not(.lg-solo-window) .lg-dragbar { display: none; }
+
