@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.1 - 2026-10-21
+
+- Prefix searches (`:text`, `#tag`, `@folder`) no longer auto-zoom: the result list stays open (up to 15, scrollable) and you click a hit to fly to it. Enter only pulses all hits. Plain name search is unchanged.
+
 ## 2.2.0 - 2026-10-21
 
 - Search box prefixes: `:text` searches note content (lazy, incremental index with snippets), `#tag` searches tags, `@folder` searches paths. Enter pulses all hits.

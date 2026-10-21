@@ -34,7 +34,8 @@
 .live-graph-wrap .lg-hint-hide { opacity: 0; }
 .lg-search { position: absolute; top: 10px; right: 12px; z-index: 3; width: 240px; }
 .lg-search input { width: 100%; background: rgba(10, 8, 26, 0.8); color: #e8ecff; border: 1px solid rgba(160, 150, 255, 0.35); }
-.lg-search-list { background: rgba(10, 8, 26, 0.92); border-radius: 6px; margin-top: 2px; }
+.lg-search-list { background: rgba(10, 8, 26, 0.92); border-radius: 6px; margin-top: 2px; max-height: 60vh; overflow-y: auto; }
+.lg-search-more { color: #6f78a8; cursor: default; }
 .lg-search-item { padding: 4px 8px; cursor: pointer; color: #cfd6ff; font-size: var(--font-ui-smaller); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .lg-search-item:hover { background: rgba(125, 255, 176, 0.15); }
 .lg-search-path { color: #6f78a8; }

@@ -2461,7 +2461,7 @@ class GalaxyView extends ItemView {
         it.createSpan({ cls: "lg-search-path", text: " " + (note || n.folder) });
         it.addEventListener("click", () => {
           this.flyTo(n);
-          this.searchList.empty();
+          if (this.searchMode === "name") this.searchList.empty();
         });
       }
     };
@@ -2471,8 +2471,10 @@ class GalaxyView extends ItemView {
       this.searchList.empty();
       this.searchHits = [];
       this.searchAll = [];
+      this.searchMode = "name";
       if (!raw) return;
       const mode = raw[0] === ":" ? "text" : raw[0] === "#" ? "tag" : raw[0] === "@" ? "folder" : "name";
+      this.searchMode = mode;
       const q = (mode === "text" || mode === "folder" ? raw.slice(1) : mode === "tag" ? raw : raw).trim().toLowerCase();
       if (!q) return;
       const nodes = this.g.nodes;
@@ -2498,8 +2500,9 @@ class GalaxyView extends ItemView {
           .map((n) => ({ n }));
       }
       const total = hits.length;
-      show(hits.slice(0, 8));
-      if (total > 8) this.searchList.createDiv({ cls: "lg-search-item", text: `+${total - 8} more (Enter pulses all ${total})` });
+      const cap = mode === "name" ? 8 : 15;
+      show(hits.slice(0, cap));
+      if (total > cap) this.searchList.createDiv({ cls: "lg-search-item lg-search-more", text: `+${total - cap} more (Enter pulses all ${total})` });
       this.searchAll = hits.map((h) => h.n);
     };
     this.searchInput.addEventListener("input", runSearch);
@@ -2507,8 +2510,9 @@ class GalaxyView extends ItemView {
       e.stopPropagation();
       if (e.key === "Enter") {
         if ((this.searchAll || []).length > 1) this.plugin.emit({ type: "search", query: this.searchInput.value, paths: this.searchAll.slice(0, 80).map((n) => n.path), intensity: 0.8 });
+        // prefix searches keep the list open so you pick the hit yourself; plain name search jumps to the first one
         const first = this.searchList.firstElementChild;
-        if (first) first.click();
+        if (first && this.searchMode === "name") first.click();
       } else if (e.key === "Escape") {
         this.searchInput.value = "";
         this.searchList.empty();
