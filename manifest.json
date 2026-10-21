@@ -1,7 +1,7 @@
 {
   "id": "live-graph",
   "name": "Live Galaxy",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "minAppVersion": "1.4.0",
   "description": "3D galaxy view of the vault with animated particle flows and a live usage-stream API.",
   "author": "WurkObsAi",

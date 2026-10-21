@@ -2681,6 +2681,22 @@ class GalaxyView extends ItemView {
       this.plugin.saveData(this.plugin.data);
     });
     const goHome = () => this.applyPreset(this.plugin.data.presets[this.plugin.data.current] || DEFAULT_PRESETS.Galaxy);
+    section("Integrations", false);
+    const intro = cur.createDiv({ cls: "lg-leg-item" });
+    intro.setText("Optional and off by default. Nothing here is needed to view the galaxy.");
+    const integ = (label, tip, key, on, off) => {
+      const r = row(label);
+      r.title = tip;
+      const cb = r.createEl("input", { type: "checkbox" });
+      cb.checked = !!this.plugin.data[key];
+      cb.addEventListener("change", () => {
+        this.plugin.data[key] = cb.checked;
+        this.plugin.saveData(this.plugin.data);
+        if (cb.checked) on(); else off();
+      });
+    };
+    integ("Stream API", `Local HTTP server on 127.0.0.1:${this.plugin.data.port} (token protected) that lets other tools send usage events`, "serverEnabled", () => this.plugin.startServer(), () => this.plugin.stopServer());
+    integ("REST hook", "Observe Local REST API calls (file names and queries) and animate them", "hookRestApi", () => this.plugin.hookRestApi(), () => this.plugin.unhookRestApi());
     section("Presets", false);
     const pr = row("Preset");
     this.presetSel = pr.createEl("select");
@@ -3006,7 +3022,9 @@ class GalaxyView extends ItemView {
 class LiveGraphPlugin extends Plugin {
   async onload() {
     const saved = (await this.loadData()) || {};
-    this.data = Object.assign({ port: 27201, serverEnabled: true, current: "Galaxy" }, saved);
+    // integrations are opt-in; installs that already had a token keep the old behaviour (on)
+    const legacy = !!saved.token && saved.serverEnabled === undefined;
+    this.data = Object.assign({ port: 27201, serverEnabled: legacy, hookRestApi: legacy, current: "Galaxy" }, saved);
     this.data.presets = Object.assign({}, DEFAULT_PRESETS, saved.presets || {});
     if (!this.data.token) this.data.token = this.makeToken();
     await this.saveData(this.data);
@@ -3061,7 +3079,7 @@ class LiveGraphPlugin extends Plugin {
 
   /* Observe authenticated Local REST API calls (agents/MCP) and show them as usage events. */
   hookRestApi() {
-    if (this.data.hookRestApi === false) return false;
+    if (!this.data.hookRestApi) return false;
     const rest = this.app.plugins && this.app.plugins.plugins && this.app.plugins.plugins["obsidian-local-rest-api"];
     const api = rest && rest.requestHandler && rest.requestHandler.api;
     if (!api || typeof api.handle !== "function") return false;
@@ -3241,6 +3259,13 @@ class LiveGraphPlugin extends Plugin {
     this.server.listen(this.data.port, "127.0.0.1");
   }
 
+  stopServer() {
+    for (const res of this.sse) { try { res.end(); } catch (e) { /* closing anyway */ } }
+    this.sse.clear();
+    if (this.server) this.server.close();
+    this.server = null;
+  }
+
   async openView() {
     const ws = this.app.workspace;
     const existing = ws.getLeavesOfType(VIEW_TYPE)[0];
@@ -3261,7 +3286,7 @@ class LiveGraphPlugin extends Plugin {
     for (const res of this.sse) {
       try { res.end(); } catch (e) { /* ignore */ }
     }
-    if (this.server) this.server.close();
+    this.stopServer();
     this.app.workspace.detachLeavesOfType(VIEW_TYPE);
   }
 }

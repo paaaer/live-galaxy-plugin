@@ -28,6 +28,15 @@ With [BRAT](https://github.com/TfTHacker/obsidian42-brat): add `paaaer/live-gala
 - Drag: orbit. Right/Shift-drag: pan. Wheel: zoom to cursor. Double-click: fly to star. Shift-click: zoom to star or planet.
 - Sliders have a tick at their neutral value; releasing near it snaps to it.
 
+## Permissions and privacy
+
+- Reads vault files and metadata through Obsidian's API (links, tags, and note text for `:` search). Writes only its own `data.json` (settings, presets, usage stats, token). It never modifies notes.
+- No outbound network access, no `eval`, no child processes.
+- Two **optional integrations, off by default** (Display panel → Integrations):
+  - **Stream API**: a local HTTP server on `127.0.0.1:27201`, token protected, rejects browser (Origin) requests, accepts only small validated event payloads. It cannot read or change vault content.
+  - **REST hook**: if the Local REST API plugin is present, observes its calls (file names, queries) to animate them. Does not alter responses.
+- Existing installs that already had these enabled keep them on.
+
 ## Development
 
 The engine (`Galaxy` class) has no DOM dependency beyond canvas, so it runs headless:

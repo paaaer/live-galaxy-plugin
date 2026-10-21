@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.3.0 - 2026-10-21
+
+- The stream API server and the Local REST API hook are now opt-in (off by default) with toggles under Integrations in the panel; installs that already had them enabled keep them on. Server start/stop applies immediately.
+- README: new Permissions and privacy section.
+
 ## 2.2.1 - 2026-10-21
 
 - Prefix searches (`:text`, `#tag`, `@folder`) no longer auto-zoom: the result list stays open (up to 15, scrollable) and you click a hit to fly to it. Enter only pulses all hits. Plain name search is unchanged.
