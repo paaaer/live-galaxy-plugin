@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.0 - 2026-10-21
+
+- Search box prefixes: `:text` searches note content (lazy, incremental index with snippets), `#tag` searches tags, `@folder` searches paths. Enter pulses all hits.
+
 ## 2.1.0 - 2026-10-21
 
 - Black hole rework: size slider, Clean event-horizon style, ray-traced lensed disk (default), organic smoke/plasma jets, jets mode (When feeding / Always / Off).

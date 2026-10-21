@@ -12,7 +12,7 @@ An Obsidian plugin that shows your vault as a 3D galaxy: notes are stars with pl
 - Visible spiral arms with an arm-winding slider; tilt, rotation, spread and zoom controls.
 - Link styles (light pulses, tiny ships, cosmic web, neon glow, flowing dashes) and link types (local, bridge, mutual, index, embed, property).
 - Black hole styles: Clean event horizon, physically ray-traced lensed disk, Classic, Quasar, Gargantua; adjustable size and organic jets.
-- Timeline playback, search, quality levels (Low to Ultra, or Auto) and saved presets (camera and settings).
+- Timeline playback, search (`:text` content, `#tag`, `@folder` prefixes), quality levels (Low to Ultra, or Auto) and saved presets (camera and settings).
 - Shift-click a star or planet to fly to it; popout window mode with no Obsidian chrome.
 - Optional live usage stream API (REST hook) that animates activity into the black hole.
 

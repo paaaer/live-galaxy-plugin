@@ -2414,29 +2414,99 @@ class GalaxyView extends ItemView {
 
   buildPanel(wrap) {
     const sb = wrap.createDiv({ cls: "lg-search" });
-    this.searchInput = sb.createEl("input", { type: "text", placeholder: "Search note… (/)" });
+    this.searchInput = sb.createEl("input", { type: "text", placeholder: "Search note…  (:text  #tag  @folder)  (/)" });
     this.searchList = sb.createDiv({ cls: "lg-search-list" });
-    const runSearch = () => {
-      const q = this.searchInput.value.trim().toLowerCase();
+    this.contentIdx = new Map();
+    this.searchHits = [];
+    let seq = 0;
+    // lazily builds/refreshes a lowercase text index; only notes changed since the last pass are re-read
+    const buildIndex = async (mySeq) => {
+      const vault = this.app.vault;
+      let i = 0;
+      for (const n of this.g.nodes) {
+        const file = vault.getAbstractFileByPath(n.path);
+        if (!file || !file.stat) continue;
+        const old = this.contentIdx.get(n.path);
+        if (!old || old.mtime !== file.stat.mtime) {
+          try { this.contentIdx.set(n.path, { mtime: file.stat.mtime, text: await vault.cachedRead(file) }); } catch (_) {}
+        }
+        if (++i % 40 === 0) {
+          await new Promise((r) => setTimeout(r, 0));
+          if (mySeq !== seq) return false;
+        }
+      }
+      return mySeq === seq;
+    };
+    const snippet = (text, q) => {
+      const at = text.toLowerCase().indexOf(q);
+      if (at < 0) return "";
+      const from = Math.max(0, at - 28);
+      return (from ? "…" : "") + text.slice(from, at + q.length + 48).replace(/\s+/g, " ");
+    };
+    const tagsOf = (n) => {
+      const file = this.app.vault.getAbstractFileByPath(n.path);
+      const c = file && this.app.metadataCache.getFileCache(file);
+      const out = [];
+      for (const t of (c && c.tags) || []) out.push(t.tag.toLowerCase());
+      const fm = c && c.frontmatter && c.frontmatter.tags;
+      for (const t of Array.isArray(fm) ? fm : typeof fm === "string" ? fm.split(/[,\s]+/) : []) out.push("#" + String(t).toLowerCase().replace(/^#/, ""));
+      return out;
+    };
+    const show = (hits) => {
+      this.searchHits = hits.map((h) => h.n);
       this.searchList.empty();
-      if (!q) return;
-      const hits = this.g.nodes
-        .filter((n) => n.name.toLowerCase().includes(q) || n.path.toLowerCase().includes(q))
-        .sort((a, b) => (b.name.toLowerCase().startsWith(q) ? 1 : 0) - (a.name.toLowerCase().startsWith(q) ? 1 : 0) || b.deg - a.deg)
-        .slice(0, 8);
-      for (const n of hits) {
+      if (!hits.length) this.searchList.createDiv({ cls: "lg-search-item", text: "No matches" });
+      for (const { n, note } of hits) {
         const it = this.searchList.createDiv({ cls: "lg-search-item", text: n.name });
-        it.createSpan({ cls: "lg-search-path", text: " " + n.folder });
+        it.createSpan({ cls: "lg-search-path", text: " " + (note || n.folder) });
         it.addEventListener("click", () => {
           this.flyTo(n);
           this.searchList.empty();
         });
       }
     };
+    const runSearch = async () => {
+      const raw = this.searchInput.value.trim();
+      const mySeq = ++seq;
+      this.searchList.empty();
+      this.searchHits = [];
+      this.searchAll = [];
+      if (!raw) return;
+      const mode = raw[0] === ":" ? "text" : raw[0] === "#" ? "tag" : raw[0] === "@" ? "folder" : "name";
+      const q = (mode === "text" || mode === "folder" ? raw.slice(1) : mode === "tag" ? raw : raw).trim().toLowerCase();
+      if (!q) return;
+      const nodes = this.g.nodes;
+      let hits;
+      if (mode === "text") {
+        if (q.length < 2) return;
+        this.searchList.createDiv({ cls: "lg-search-item", text: "Searching…" });
+        if (!(await buildIndex(mySeq))) return;
+        hits = [];
+        for (const n of nodes) {
+          const e = this.contentIdx.get(n.path);
+          if (e && e.text.toLowerCase().includes(q)) hits.push({ n, note: snippet(e.text, q) });
+        }
+        hits.sort((a, b) => b.n.deg - a.n.deg);
+      } else if (mode === "tag") {
+        hits = nodes.filter((n) => tagsOf(n).some((t) => t.startsWith(q))).sort((a, b) => b.deg - a.deg).map((n) => ({ n }));
+      } else if (mode === "folder") {
+        hits = nodes.filter((n) => n.path.toLowerCase().includes(q)).sort((a, b) => b.deg - a.deg).map((n) => ({ n, note: n.folder }));
+      } else {
+        hits = nodes
+          .filter((n) => n.name.toLowerCase().includes(q) || n.path.toLowerCase().includes(q))
+          .sort((a, b) => (b.name.toLowerCase().startsWith(q) ? 1 : 0) - (a.name.toLowerCase().startsWith(q) ? 1 : 0) || b.deg - a.deg)
+          .map((n) => ({ n }));
+      }
+      const total = hits.length;
+      show(hits.slice(0, 8));
+      if (total > 8) this.searchList.createDiv({ cls: "lg-search-item", text: `+${total - 8} more (Enter pulses all ${total})` });
+      this.searchAll = hits.map((h) => h.n);
+    };
     this.searchInput.addEventListener("input", runSearch);
     this.searchInput.addEventListener("keydown", (e) => {
       e.stopPropagation();
       if (e.key === "Enter") {
+        if ((this.searchAll || []).length > 1) this.plugin.emit({ type: "search", query: this.searchInput.value, paths: this.searchAll.slice(0, 80).map((n) => n.path), intensity: 0.8 });
         const first = this.searchList.firstElementChild;
         if (first) first.click();
       } else if (e.key === "Escape") {
@@ -2660,7 +2730,7 @@ class GalaxyView extends ItemView {
     item("Green pulse = search result", { background: "#5dffa0", borderRadius: "50%" });
     head("Controls");
     item("Drag orbit · right/Shift-drag pan · Shift-click zoom to star or planet · wheel zoom · double-click fly to star");
-    item("Keys: arrows orbit · +/- zoom · Home reset · Space pause · / search · Esc stop following");
+    item("Keys: arrows orbit · +/- zoom · Home reset · Space pause · / search (:text #tag @folder) · Esc stop following");
     item("Sliders: release near the tick to snap to the neutral value");
     wrap.createEl("button", { cls: "lg-home", text: "⌂ Home", attr: { title: "Reset view to the whole galaxy (double-click empty space also works)" } }).addEventListener("click", goHome);
     const hint = wrap.createDiv({ cls: "lg-hint", text: "Drag: orbit · Right/Shift-drag: pan · Shift-click: zoom to star/planet · Wheel: zoom to cursor · Double-click: fly to star" });
