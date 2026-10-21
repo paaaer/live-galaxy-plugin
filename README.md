@@ -2,6 +2,10 @@
 
 An Obsidian plugin that shows your vault as a 3D galaxy: notes are stars with planets and moons, links are animated flows between them, and a black hole sits at the centre. Desktop only.
 
+![Live Galaxy](docs/screenshot.png)
+
+*Rendered headless from a synthetic 500-note vault (Ultra quality, lensed-disk black hole with jets).*
+
 ## Features
 
 - Notes as stars (class and colour from note size and age), with science-based planetary systems, asteroid belts and moons.
