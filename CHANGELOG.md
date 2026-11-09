@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.0 - 2026-11-09
+
+- Add an optional Focus on click setting to bring the opened note tab and its window to the foreground (off by default).
+- Search results fly to the matching note's own star and open that note in the main window.
+- Escape returns to the default galaxy overview; in the search box it also clears the search.
+
 ## 2.3.0 - 2026-10-21
 
 - The stream API server and the Local REST API hook are now opt-in (off by default) with toggles under Integrations in the panel; installs that already had them enabled keep them on. Server start/stop applies immediately.
