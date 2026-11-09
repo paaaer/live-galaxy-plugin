@@ -1,57 +1,130 @@
 # Live Galaxy
 
-An Obsidian plugin that shows your vault as a 3D galaxy: notes are stars with planets and moons, links are animated flows between them, and a black hole sits at the centre. Desktop only.
+Explore your Obsidian notes as a moving 3D galaxy. Notes become stars, links connect them, and a black hole sits at the centre.
+
+**Desktop only.** Live Galaxy reads your notes but never changes them.
 
 ![Live Galaxy](docs/screenshot.png)
 
-*Rendered headless from a synthetic 500-note vault (Ultra quality, lensed-disk black hole with jets).*
+*Example with 500 sample notes, Ultra quality, and a black hole with a glowing disk and jets.*
 
 ## Features
 
-- Notes as stars (class and colour from note size and age), with science-based planetary systems, asteroid belts and moons.
-- Visible spiral arms with an arm-winding slider; tilt, rotation, spread and zoom controls.
-- Link styles (light pulses, tiny ships, cosmic web, neon glow, flowing dashes) and link types (local, bridge, mutual, index, embed, property).
-- Black hole styles: Clean event horizon, physically ray-traced lensed disk, Classic, Quasar, Gargantua; adjustable size and organic jets.
-- Timeline playback, search (`:text` content, `#tag`, `@folder` prefixes), quality levels (Low to Ultra, or Auto) and saved presets (camera and settings).
-- Shift-click a star or planet to fly to it; popout window mode with no Obsidian chrome.
-- Optional live usage stream API (REST hook) that animates activity into the black hole.
+### See your notes in space
+
+- Each note has its own star. Notes with more links appear larger.
+- Notes are grouped by folder across the galaxy's spiral arms.
+- Zoom in to see planets, moons, rings, and asteroid belts.
+- Planets can stand for linked notes or headings in the star's note. Some are just part of the scenery.
+- Show or hide labels, links, and background clouds. Turn on **Orphans** to include notes with no links.
+
+### Find and open notes
+
+- Search by note name, text, tag, or folder.
+- Click a search result to fly to **that note's own star** and open its note in the main window.
+- Turn on **View → Focus on click** to bring the opened note's tab and window to the front. It is off by default, so you can keep exploring the galaxy.
+- Press **Escape** to leave a close-up and return to the default galaxy overview.
+
+### Choose the look
+
+- Draw links as light pulses, tiny ships, a cosmic web, neon lines, or moving dashes.
+- Choose which links to show, such as links across folders or notes that link to each other. Embedded notes and links in note properties have their own filters too.
+- Choose from five black hole looks: Clean, Lensed disk, Classic, Quasar, and Gargantua. Change its size and turn its jets on or off.
+- Adjust the camera angle, zoom, rotation speed, spiral arms, and planet motion.
+
+### Explore your way
+
+- Play the timeline to reveal notes in the order they were created.
+- Save camera views and display settings as presets.
+- Open the galaxy in its own window, without the usual Obsidian toolbars.
+- Choose Low, Medium, High, or Ultra quality, or let Auto adjust it for you.
+- Optionally show activity from other tools as streams flowing into the black hole. These connections are off by default.
 
 ## Install
 
-Manual: copy `main.js`, `manifest.json` and `styles.css` into `<vault>/.obsidian/plugins/live-graph/` (the folder must be named `live-graph`), restart Obsidian and enable **Live Galaxy** under Community plugins.
+### Manual install
+
+1. Get `main.js`, `manifest.json`, and `styles.css` from a release or this repository.
+2. Put all three files in `<vault>/.obsidian/plugins/live-graph/`. The folder must be named `live-graph`.
+3. Restart Obsidian, then enable **Live Galaxy** under **Settings → Community plugins**.
+
+### Install with BRAT
 
 With [BRAT](https://github.com/TfTHacker/obsidian42-brat): add `paaaer/live-galaxy-plugin` as a beta plugin.
 
-## Use
+## Open the galaxy
 
-- Command **Open Live Galaxy** opens it in a tab; **Open Live Galaxy in its own window** opens a clean popout with a drag bar.
-- Drag: orbit. Right/Shift-drag: pan. Wheel: zoom to cursor. Double-click: fly to star. Shift-click: zoom to star or planet.
-- Sliders have a tick at their neutral value; releasing near it snaps to it.
-- Click a search result to fly to that note's star and open its note. Planets can represent linked notes or headings; search always targets the matching note's own star.
-- Enable **View → Focus on click** in the Galaxy panel to bring the opened note tab and its window to the foreground (off by default).
-- Press **Escape** in the galaxy view to return to the default whole-galaxy camera, including from the search box (which also clears the search).
+Use the ribbon icon or run **Open Live Galaxy** from Obsidian's command palette.
+
+To use a separate window, run **Open Live Galaxy in its own window**. A drag bar appears at the top when you move the pointer over it.
+
+## Search
+
+Type in the galaxy's search box, or click inside the galaxy and press `/`.
+
+| Type | Finds |
+| --- | --- |
+| `meeting` | Notes with `meeting` in their name or path |
+| `:project plan` | Notes containing `project plan` in their text |
+| `#work` | Notes with tags starting with `#work` |
+| `@Projects` | Notes with `Projects` in their path |
+
+Search ignores letter case. Text searches need at least two characters after `:`.
+
+Click a result to fly to the matching note's star and open the note. For text, tag, and folder searches, the list stays open so you can try another result. Pressing Enter highlights the matches; a plain name search also selects its first result.
+
+## Controls
+
+| Action | How |
+| --- | --- |
+| Turn the view | Drag, or use the arrow keys |
+| Move the view sideways | Right-drag or Shift-drag |
+| Zoom | Mouse wheel, or `+` / `-` |
+| Open a note | Click its star or a planet linked to it |
+| Open in a new tab | Ctrl-click, or Cmd-click on macOS |
+| Zoom to a star or planet | Shift-click it |
+| Fly to a note's star | Double-click it |
+| Return to the default overview | Escape, Home, or `0` |
+| Pause or resume the animation | Space |
+
+For keyboard controls, click inside the galaxy first. Escape also works from buttons in the galaxy panel and from the search box, where it clears the search. It does not take over Escape while you edit other fields.
+
+The on-screen **Home** button returns to the selected preset. Sliders have a small mark at their reset value; release near it to snap back.
 
 ## Permissions and privacy
 
-- Reads vault files and metadata through Obsidian's API (links, tags, and note text for `:` search). Writes only its own `data.json` (settings, presets, usage stats, token). It never modifies notes.
-- No outbound network access, no `eval`, no child processes.
-- Two **optional integrations, off by default** (Display panel → Integrations):
-  - **Stream API**: a local HTTP server on `127.0.0.1:27201`, token protected, rejects browser (Origin) requests, accepts only small validated event payloads. It cannot read or change vault content.
-  - **REST hook**: if the Local REST API plugin is present, observes its calls (file names, queries) to animate them. Does not alter responses.
-- Existing installs that already had these enabled keep them on.
+Live Galaxy reads note names, links, tags, and headings through Obsidian. Text search also reads note text. It saves only its own settings, presets, activity counts, and access token in `data.json`. It never edits your notes.
+
+It does not send data to outside servers, run shell commands, or evaluate code from strings.
+
+Two optional connections are available under **Integrations** in the Galaxy panel:
+
+| Option | What it does |
+| --- | --- |
+| **Stream API** | Lets local tools send small activity events to `127.0.0.1:27201` by default. It requires an access token, rejects requests with a browser Origin header, and cannot read or change vault content. |
+| **REST hook** | If the Local REST API plugin is installed, watches its calls to animate activity. It sees file names and search queries but does not change the responses. |
+
+Both are **off by default**. Older installs that already had them enabled keep them on.
 
 ## Development
 
-The engine (`Galaxy` class) has no DOM dependency beyond canvas, so it runs headless:
+Edit `main.js` directly. There is no build step.
 
+Run the navigation tests with Node.js:
+
+```powershell
+node scripts\navigation.test.js
 ```
-npm i @napi-rs/canvas      # in a scratch dir; set CANVAS_DIR to it
-node scripts/smoke.js [notes]
+
+The drawing engine can also be tested without opening Obsidian. Install `@napi-rs/canvas` in a scratch folder and set `CANVAS_DIR` to that folder, then run:
+
+```powershell
+node scripts\smoke.js 800
 ```
 
-Edit `main.js` directly. `scripts/sync.ps1` copies the plugin files between a vault install and this repo.
+`scripts\sync.ps1` copies the plugin files from a vault install into this repo. Use `scripts\sync.ps1 -ToVault` to copy them back. Check for local changes before copying.
 
-Release: bump `version` in `manifest.json`, add it to `versions.json` and `CHANGELOG.md`, then run `scripts/release.ps1` to build `dist/live-galaxy-<version>.zip`.
+For a release, update `manifest.json`, `versions.json`, and `CHANGELOG.md`. Run `scripts\release.ps1` to build `dist\live-galaxy-<version>.zip` from the current plugin files.
 
 `data.json` (settings, presets, usage token) is never committed.
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.4.1 - 2026-11-09
+
+- Give galaxy popout windows a dark background and remove extra gaps, borders, shadows, and pane resize handles.
+- Rewrite the README in plain language, with grouped features, search examples, and a controls table.
+
 ## 2.4.0 - 2026-11-09
 
 - Add an optional Focus on click setting to bring the opened note tab and its window to the foreground (off by default).
