@@ -2461,7 +2461,9 @@ class GalaxyView extends ItemView {
         it.createSpan({ cls: "lg-search-path", text: " " + (note || n.folder) });
         it.addEventListener("click", () => {
           this.flyTo(n);
+          this.openNode(n, false);
           if (this.searchMode === "name") this.searchList.empty();
+          if (!this.plugin.data.focusOnClick) this.canvas.focus({ preventScroll: true });
         });
       }
     };
@@ -2516,6 +2518,7 @@ class GalaxyView extends ItemView {
       } else if (e.key === "Escape") {
         this.searchInput.value = "";
         this.searchList.empty();
+        this.g.home();
         this.canvas.focus();
       }
     });
@@ -2589,6 +2592,14 @@ class GalaxyView extends ItemView {
     slider("spread", "Spread", 0.6, 3, 0.05);
     slider("orbit", "Planet orbits", -3, 3, 0.1);
     slider("bhSize", "Black hole size", 0.3, 4, 0.05);
+    const focusRow = row("Focus on click");
+    focusRow.title = "Bring the opened note tab and its window to the foreground when clicking a note or search result";
+    const focusCb = focusRow.createEl("input", { type: "checkbox" });
+    focusCb.checked = !!this.plugin.data.focusOnClick;
+    focusCb.addEventListener("change", () => {
+      this.plugin.data.focusOnClick = focusCb.checked;
+      this.plugin.saveData(this.plugin.data);
+    });
     section("Links", true);
     toggleRow("Show", [["links", "Links"], ["orphans", "Orphans"]]);
     slider("density", "Link flow", 0, 3, 0.1);
@@ -2750,7 +2761,7 @@ class GalaxyView extends ItemView {
     item("Green pulse = search result", { background: "#5dffa0", borderRadius: "50%" });
     head("Controls");
     item("Drag orbit · right/Shift-drag pan · Shift-click zoom to star or planet · wheel zoom · double-click fly to star");
-    item("Keys: arrows orbit · +/- zoom · Home reset · Space pause · / search (:text #tag @folder) · Esc stop following");
+    item("Keys: arrows orbit · +/- zoom · Home/Esc reset · Space pause · / search (:text #tag @folder)");
     item("Sliders: release near the tick to snap to the neutral value");
     wrap.createEl("button", { cls: "lg-home", text: "⌂ Home", attr: { title: "Reset view to the whole galaxy (double-click empty space also works)" } }).addEventListener("click", goHome);
     const hint = wrap.createDiv({ cls: "lg-hint", text: "Drag: orbit · Right/Shift-drag: pan · Shift-click: zoom to star/planet · Wheel: zoom to cursor · Double-click: fly to star" });
@@ -2887,6 +2898,13 @@ class GalaxyView extends ItemView {
 
   bindPointer() {
     const c = this.canvas;
+    this.contentEl.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape" || e.defaultPrevented) return;
+      if (e.target.isContentEditable || e.target.closest("input, textarea, select")) return;
+      this.g.home();
+      e.preventDefault();
+      e.stopPropagation();
+    });
     const pos = (e) => {
       const r = c.getBoundingClientRect();
       return { x: e.clientX - r.left, y: e.clientY - r.top };
@@ -2960,7 +2978,7 @@ class GalaxyView extends ItemView {
         case "-": case "_": g.zoomAt(1 / 1.2, g.cx, g.cy); break;
         case "Home": case "0": g.follow = null; g.home(); break;
         case " ": g.paused = !g.paused; break;
-        case "Escape": g.follow = null; break;
+        case "Escape": g.home(); break;
         case "/": this.searchInput.focus(); break;
         default: used = false;
       }
@@ -2987,12 +3005,24 @@ class GalaxyView extends ItemView {
     if (pulse) this.g.pulse = { n, t0: performance.now() };
   }
 
-  openNode(node, newTab) {
+  async openNode(node, newTab) {
     const file = this.app.vault.getAbstractFileByPath(node.path);
     if (!file) return;
     const ws = this.app.workspace;
-    const leaf = newTab ? ws.getLeaf("tab") : ws.getLeavesOfType("markdown")[0] || ws.getLeaf("split");
-    leaf.openFile(file);
+    const pane = this.plugin.data.mainGroup && this.plugin.findGroup?.(this.plugin.data.mainGroup);
+    let leaf = !newTab && ws.getLeavesOfType("markdown").find((l) =>
+      l.getRoot() === ws.rootSplit && (!pane || l.parent === pane));
+    if (!leaf) {
+      const parent = pane || ws.getMostRecentLeaf(ws.rootSplit)?.parent;
+      leaf = parent ? ws.createLeafInParent(parent, -1) : ws.getLeaf("tab");
+    }
+    const focus = !!this.plugin.data.focusOnClick;
+    await leaf.openFile(file, { active: focus });
+    if (focus) {
+      await ws.revealLeaf(leaf);
+      ws.setActiveLeaf(leaf, { focus: true });
+      leaf.view.containerEl.ownerDocument.defaultView?.focus();
+    }
   }
 
   frame(t) {

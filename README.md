@@ -27,6 +27,9 @@ With [BRAT](https://github.com/TfTHacker/obsidian42-brat): add `paaaer/live-gala
 - Command **Open Live Galaxy** opens it in a tab; **Open Live Galaxy in its own window** opens a clean popout with a drag bar.
 - Drag: orbit. Right/Shift-drag: pan. Wheel: zoom to cursor. Double-click: fly to star. Shift-click: zoom to star or planet.
 - Sliders have a tick at their neutral value; releasing near it snaps to it.
+- Click a search result to fly to that note's star and open its note. Planets can represent linked notes or headings; search always targets the matching note's own star.
+- Enable **View → Focus on click** in the Galaxy panel to bring the opened note tab and its window to the foreground (off by default).
+- Press **Escape** in the galaxy view to return to the default whole-galaxy camera, including from the search box (which also clears the search).
 
 ## Permissions and privacy
 
